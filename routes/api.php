@@ -20,3 +20,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('park/{parkingLot}', [ParkingHistoryController::class, 'park'])->name('parking.park');
+Route::post('park/{parkingLot}', [ParkingHistoryController::class, 'park'])->name('parking.park');

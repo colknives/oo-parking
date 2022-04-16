@@ -18,11 +18,12 @@ return new class extends Migration
             $table->bigInteger('parking_lot_id');
             $table->bigInteger('parking_slot_id');
             $table->string('license_plate');
+            $table->string('vehicle_size')->nullable();
             $table->string('status');
             $table->float('rate')->default(0.00);
             $table->boolean('continuous_rate')->default(0);
-            $table->dateTime('start_datetime');
-            $table->dateTime('end_datetime')->nullable();
+            $table->timestamp('start_datetime');
+            $table->timestamp('end_datetime')->nullable();
             $table->timestamps();
         });
     }

@@ -29,7 +29,7 @@ class ParkVehicleRequest extends FormRequest
         return [
             'entry_point' => ['required', 'integer'],
             'license_plate' => ['required'],
-            'size' => ['required', Rule::in(VehicleSize::$sizes)],
+            'vehicle_size' => ['required', Rule::in(VehicleSize::$sizes)],
             'start_datetime' => ['required', 'date']
         ];
     }

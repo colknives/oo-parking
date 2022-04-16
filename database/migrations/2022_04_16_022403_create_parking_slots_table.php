@@ -13,11 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('parking_lots', function (Blueprint $table) {
+        Schema::create('parking_slots', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('parking_lot_id');
             $table->string('name');
-            $table->integer('total_entry');
-            $table->integer('total_slot');
+            $table->text('distance');
+            $table->integer('type');
             $table->timestamps();
         });
     }
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('parking_lots');
+        Schema::dropIfExists('parking_slots');
     }
 };
