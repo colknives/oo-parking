@@ -9,6 +9,7 @@ use App\Models\ParkingLot;
 use App\Enums\ParkingSlotType;
 use App\Enums\ParkingStatus;
 use App\Enums\HourlyRate;
+use App\Enums\VehicleSize;
 use App\Models\ParkingSlot;
 
 class ParkingHistoryFactory extends Factory
@@ -37,6 +38,8 @@ class ParkingHistoryFactory extends Factory
                 ])->id;
             },
             'license_plate'        => $this->faker->word,
+            'vehicle_size'         => VehicleSize::SMALL,
+            'slot_type'            => ParkingSlotType::SMALL,
             'status'               => ParkingStatus::ONGOING,
             'rate'                 => HourlyRate::SMALL,
             'start_datetime'       => Carbon::now()

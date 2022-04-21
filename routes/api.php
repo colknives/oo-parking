@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\ParkingHistoryController;
+use App\Http\Controllers\ParkingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,5 +19,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('park/{parkingLot}', [ParkingHistoryController::class, 'park'])->name('parking.park');
-Route::post('park/{parkingLot}', [ParkingHistoryController::class, 'park'])->name('parking.park');
+Route::get('map/{parkingLot}', [ParkingController::class, 'map'])->name('parking.map');
+Route::post('park/{parkingLot}', [ParkingController::class, 'park'])->name('parking.park');
+Route::post('unpark/{parkingHistory}', [ParkingController::class, 'unpark'])->name('parking.unpark');

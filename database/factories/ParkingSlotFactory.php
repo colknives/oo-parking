@@ -28,7 +28,7 @@ class ParkingSlotFactory extends Factory
                 return ParkingLot::factory()->create()->id;
             },
             'name'           => $this->faker->word,
-            'distance'       => json_encode($this->faker->randomElements([1,2,3], 3)),
+            'distance'       => $this->faker->randomElements([0,1,2,3,4,5,6,7], 8),
             'type'           => $this->faker->randomElement(ParkingSlotType::$types)
         ];
     }

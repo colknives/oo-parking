@@ -2,16 +2,24 @@
 
 namespace App\Services;
 
+use App\Enums\HourlyRate;
 use Illuminate\Support\Arr;
 use App\Models\ParkingLot;
 use App\Models\ParkingHistory;
 use App\Enums\ParkingStatus;
 use Carbon\Carbon;
 
-class ParkingHistoryService
+use Illuminate\Support\Facades\Log;
+
+class ParkService
 {
     protected $entryPoint;
 
+    /**
+     * Initialize park service
+     *
+     * @param $entryPoint
+     */
     public function __construct($entryPoint = false)
     {
         $this->entryPoint = $entryPoint;
@@ -21,8 +29,7 @@ class ParkingHistoryService
      * Check parking vacancy
      *
      * @param ParkingLot $parkingLot
-     * @param $size
-     * @param $entryPoint
+     * @param $vehicleSize
      * 
      * @return boolean
      */
@@ -46,23 +53,40 @@ class ParkingHistoryService
     }
 
     /**
+     * Check if already parked
+     *
+     * @param ParkingLot $parkingLot
+     * @param $licensePlate
+     * 
+     * @return boolean
+     */
+    public function checkIfVehicleParked(ParkingLot $parkingLot, $licensePlate)
+    {
+        //Get all ongoing parking records
+        $parked = ParkingHistory::where('parking_lot_id', $parkingLot->id)
+            ->where('license_plate', $licensePlate)
+            ->where('status', ParkingStatus::ONGOING)
+            ->get();
+
+        return count($parked) > 0;
+    }
+
+    /**
      * Check if vehicle is legible for continuous rate
      *
      * @param $licensePlate
      * @param $startDate
-     * @param $entryPoint
      * 
-     * @return boolean
+     * @return ParkingHistory | boolean
      */
     public function checkContinuousRate($licensePlate, $startDate = false)
     {
-        if (!$startDate) {
-            $startDate = Carbon::now();
-        }
+        $startDate = (!$startDate)? Carbon::now() : Carbon::parse($startDate);
 
         $continuousRate = ParkingHistory::where('license_plate', $licensePlate)
             ->where('status', ParkingStatus::COMPLETED)
-            ->where('end_datetime', '>=', $startDate->subMinutes(30))
+            ->where('end_datetime', '>=', $startDate->subHour(1))
+            ->where('start_datetime', '<=', $startDate->subHour(1))
             ->orderBy('end_datetime', 'DESC')
             ->first();
 
@@ -77,10 +101,9 @@ class ParkingHistoryService
      * Park vehicle
      *
      * @param ParkingLot $parkingLot
-     * @param $size
-     * @param $entryPoint
+     * @param $data
      * 
-     * @return boolean
+     * @return ParkingHistory | boolean
      */
     public function parkVehicle(ParkingLot $parkingLot, $data)
     {
@@ -93,25 +116,22 @@ class ParkingHistoryService
         $slot = $this->getFirstSlot(
             $occupied, $parkingLot->parkingSlots, $data['vehicle_size']);
 
-        //If no start date provided, base it on current datetime
-        $startDate = ( $data['start_datetime'] )? 
-            Carbon::parse($data['start_datetime']) : Carbon::now();
-
         //Check if vehicle is legible for continuous rate
-        $continuousHistory = $this->checkContinuousRate($data['license_plate'], $startDate);
+        $continuousHistory = $this->checkContinuousRate($data['license_plate'], $data['start_datetime']);
 
         $history = new ParkingHistory;
         $history->parking_lot_id  = $slot['parking_lot_id'];
         $history->parking_slot_id = $slot['id'];
         $history->license_plate   = $data['license_plate'];
         $history->vehicle_size    = $data['vehicle_size'];
+        $history->slot_type       = $slot['type'];
         $history->status          = ParkingStatus::ONGOING;
-        $history->start_datetime  = $startDate;
+        $history->start_datetime  = $data['start_datetime'];
 
         //If continuous rate is activated, base start date on previous parking details
         if ($continuousHistory) {
-            $history->continuous_rate = true;
-            $history->start_datetime = $continuousHistory->start_datetime;
+            $history->continuous_rate_id = $continuousHistory->id;
+            $history->start_datetime = $continuousHistory->end_datetime;
         }
 
         $history->save();
@@ -158,6 +178,7 @@ class ParkingHistoryService
             return !in_array($value['id'], $occupiedSlots);
         });
 
+        
         //Filter all unoccupied slots base on vehicle size
         $slots = array_filter($slots, function ($value) use ($vehicleSize) {
             return $value['type']  >= $vehicleSize;
@@ -172,17 +193,16 @@ class ParkingHistoryService
     /**
      * Compare distance of provided parking slots
      *
-     * @param $history
-     * @param $slots
-     * @param $vehicleSize
+     * @param $slotA
+     * @param $slotB
      * 
-     * @return array
+     * @return boolean
      */
     private function compareSlotDistance($slotA, $slotB)
     {
         $distanceA = $slotA['distance'][$this->entryPoint];
         $distanceB = $slotB['distance'][$this->entryPoint];
 
-        return $distanceA > $distanceB;
+        return ( $distanceA > $distanceB );
     }
 }

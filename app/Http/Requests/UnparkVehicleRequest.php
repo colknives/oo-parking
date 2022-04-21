@@ -3,11 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-use App\Enums\VehicleSize;
-
-class ParkVehicleRequest extends FormRequest
+class UnparkVehicleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,10 +24,7 @@ class ParkVehicleRequest extends FormRequest
     public function rules()
     {
         return [
-            'entry_point'    => ['required', 'integer'],
-            'license_plate'  => ['required', 'string', 'max:10'],
-            'vehicle_size'   => ['required', Rule::in(VehicleSize::$sizes)],
-            'start_datetime' => ['required', 'date']
+            'end_datetime'  => ['required', 'date']
         ];
     }
 }

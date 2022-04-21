@@ -23,8 +23,8 @@ class ParkingLotFactory extends Factory
     {
         return [
             'name'        => $this->faker->word,
-            'total_entry' => 3,
-            'total_slot'  => 3,
+            'total_entry' => 4,
+            'total_slot'  => 8,
         ];
     }
 }

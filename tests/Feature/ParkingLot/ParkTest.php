@@ -37,10 +37,10 @@ class ParkTest extends TestCase
         $this->json('POST', route('parking.park', [
                 'parkingLot' => $parkingLot->id
         ]), [
-                'entry_point' => 2,
+                'entry_point' => 1,
                 'license_plate' => 'abc123',
                 'vehicle_size' => VehicleSize::SMALL,
-                'start_datetime' => Carbon::now()
+                // 'start_datetime' => '2022-04-20 08:00:00'
         ])
             ->assertCreated()
             ->assertJsonStructure([
@@ -160,7 +160,7 @@ class ParkTest extends TestCase
             'parking_slot_id' => $parkingSlot->id
         ]);
 
-        $response = $this->json('POST', route('parking.park', [
+        $this->json('POST', route('parking.park', [
                 'parkingLot' => $parkingLot->id
         ]), [
                 'entry_point' => 100,

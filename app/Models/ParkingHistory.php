@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Observers\ParkingHistoryObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class ParkingHistory extends Model
 {
@@ -13,14 +14,13 @@ class ParkingHistory extends Model
     protected $table = 'parking_history';
 
     /**
-     * The "booting" method of the model.
+     * Check if parking history has continuous rate.
      *
-     * @return void
+     * @return boolean
      */
-    protected static function booted()
+    public function isContinuousRate() : bool
     {
-        // register model observer
-        static::observe(ParkingHistoryObserver::class);
+        return filled($this->continuous_rate_id);
     }
 
     /*
