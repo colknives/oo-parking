@@ -70,6 +70,20 @@ class ParkingController extends Controller
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
+        //Check if parking will cause conflicts with it's current parking records
+        $conflict = $parkService->checkParkConflict(
+            $parkingLot, 
+            $data['license_plate'],
+            $data['start_datetime']
+        );
+
+        //If details has conflict with it's other parking record
+        if ($conflict) {
+            return response()->json([
+                'message'    => __('responses.parking.parking_conflict')
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         $vacant = $parkService->checkVacancy(
             $parkingLot, 
             $data['vehicle_size']);
