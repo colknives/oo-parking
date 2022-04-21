@@ -14,6 +14,34 @@ use Carbon\Carbon;
 class UnparkService
 {
     /**
+     * Check if details has conflicts with existing record
+     *
+     * @param $parkingLot
+     * @param $endDate
+     * 
+     * @return boolean
+     */
+    public function checkUnparkConflict($parkingRecord, $endDate)
+    {
+        //Get all ongoing parking records
+        $conflict = ParkingHistory::where('parking_lot_id', $parkingRecord->parking_lot_id)
+            ->where('license_plate', $parkingRecord->license_plate)
+            ->where(function (Builder $query) use ($parkingRecord, $endDate) {
+                $query->where(function (Builder $query1) use ($endDate) {
+                    $query1->where('start_datetime', '<', $endDate);
+                    $query1->where('end_datetime', '>=', $endDate);
+                });
+                $query->orWhere(function (Builder $query2) use ($parkingRecord, $endDate) {
+                    $query2->where('start_datetime', '>=', $parkingRecord->start_datetime);
+                    $query2->where('end_datetime', '<=', $endDate);
+                });
+            })
+            ->get();
+
+        return count($conflict) > 0;
+    }
+
+    /**
      * Calculate and record unparking details
      *
      * @param $parkingRecord

@@ -110,6 +110,19 @@ class ParkingController extends Controller
         //Initialize parking history service
         $unparkService = new UnparkService();
 
+        //Check if unparking details will cause conflicts with it's current parking records
+        $conflict = $unparkService->checkUnparkConflict(
+            $parkingHistory, 
+            $data['end_datetime']
+        );
+
+        //If details has conflict with it's other parking record
+        if ($conflict) {
+            return response()->json([
+                'message'    => __('responses.parking.parking_conflict')
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         //Calculate and unpark vehicle
         $payParkingRecord = $unparkService->payParkingRecord($parkingHistory, $data['end_datetime']);
 

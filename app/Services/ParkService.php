@@ -72,6 +72,27 @@ class ParkService
     }
 
     /**
+     * Check if details has conflicts with existing record
+     *
+     * @param ParkingLot $parkingLot
+     * @param $licensePlate
+     * @param $startDate
+     * 
+     * @return boolean
+     */
+    public function checkParkConflict(ParkingLot $parkingLot, $licensePlate, $startDate)
+    {
+        //Get all ongoing parking records
+        $conflict = ParkingHistory::where('parking_lot_id', $parkingLot->id)
+            ->where('license_plate', $licensePlate)
+            ->where('start_datetime', '<=', $startDate)
+            ->where('end_datetime', '>', $startDate)
+            ->get();
+
+        return count($conflict) > 0;
+    }
+
+    /**
      * Check if vehicle is legible for continuous rate
      *
      * @param $licensePlate
