@@ -86,7 +86,6 @@ class ParkService
         $continuousRate = ParkingHistory::where('license_plate', $licensePlate)
             ->where('status', ParkingStatus::COMPLETED)
             ->where('end_datetime', '>=', $startDate->subHour(1))
-            ->where('start_datetime', '<=', $startDate->subHour(1))
             ->orderBy('end_datetime', 'DESC')
             ->first();
 
