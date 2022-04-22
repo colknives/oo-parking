@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('parking_history', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('parking_lot_id');
-            $table->bigInteger('parking_slot_id');
+            $table->bigInteger('parking_lot_id')->unsigned();
+            $table->bigInteger('parking_slot_id')->unsigned();
             $table->bigInteger('continuous_rate_id')->nullable();
             $table->string('license_plate', 10);
             $table->integer('vehicle_size');
@@ -29,6 +29,11 @@ return new class extends Migration
             $table->dateTime('start_datetime');
             $table->dateTime('end_datetime')->nullable();
             $table->timestamps();
+
+            $table->index('parking_lot_id');
+            $table->index('parking_slot_id');
+            $table->foreign('parking_lot_id')->references('id')->on('parking_lots')->onDelete('cascade');
+            $table->foreign('parking_slot_id')->references('id')->on('parking_slots')->onDelete('cascade');
         });
     }
 
@@ -39,6 +44,13 @@ return new class extends Migration
      */
     public function down()
     {
+        Schema::table('parking_history', function (Blueprint $table) {
+            $table->dropForeign('parking_history_parking_lot_id_foreign'); 
+            $table->dropForeign('parking_history_parking_slot_id_foreign');
+            $table->dropIndex('parking_history_parking_lot_id_index');
+            $table->dropIndex('parking_history_parking_slot_id_index');
+        });
+
         Schema::dropIfExists('parking_history');
     }
 };

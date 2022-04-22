@@ -15,11 +15,13 @@ return new class extends Migration
     {
         Schema::create('parking_slots', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('parking_lot_id');
+            $table->bigInteger('parking_lot_id')->unsigned();
             $table->string('name', 50);
             $table->text('distance');
             $table->integer('type');
             $table->timestamps();
+
+            $table->foreign('parking_lot_id')->references('id')->on('parking_lots')->onDelete('cascade');
         });
     }
 
@@ -30,6 +32,11 @@ return new class extends Migration
      */
     public function down()
     {
+        Schema::table('parking_slots', function (Blueprint $table) {
+            $table->dropForeign('parking_slots_parking_lot_id_foreign'); 
+            $table->dropIndex('parking_slots_parking_lot_id_foreign');
+        });
+
         Schema::dropIfExists('parking_slots');
     }
 };
